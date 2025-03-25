@@ -28,14 +28,10 @@ curl https://api.github.com/search/repositories?q=tensorflow+in:topics+stars:>50
 
 ## Pages
 
-There are three pages in total in this application.
+There are two pages in total in this application.
 
 ### Search `/`
 
 ### History of search results `/history`
 
-Overview of searched items in the past, ordered by latest request first. When clicking one of the overview items, you will go to the detail page.
-
-### Historic search result details `/history/$datetime`
-
-A search result, will be viewable in the search result page, where the request has a 'unique' identifier by datetime. Makes sense, since the application persists data to localStorage so conflicts probably won't be a thing.
+Overview of searched items in the past, ordered by latest request first. When clicking one of the overview items, you will get the details.
