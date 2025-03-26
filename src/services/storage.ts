@@ -2,7 +2,7 @@ import { SearchResult } from "../types";
 
 const STORAGE_KEY = "githubSearchHistory";
 
-function load(): SearchResult[] {
+function loadFromLocalStorage(): SearchResult[] {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
 
@@ -19,18 +19,15 @@ function load(): SearchResult[] {
   }
 }
 
-function save(results: SearchResult[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
-}
-
-export const SearchHistoryStorage = {
+export const StorageService = {
   saveResult(result: SearchResult) {
-    const history = load();
+    const history = loadFromLocalStorage();
     history.unshift(result);
-    save(history);
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
   },
 
-  getAllResults(): SearchResult[] {
-    return load();
+  getResults(): SearchResult[] {
+    return loadFromLocalStorage();
   },
 };

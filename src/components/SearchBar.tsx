@@ -3,7 +3,7 @@ import { z } from "zod";
 import { SearchQuery } from "../types";
 
 export type SearchBarProps = {
-  onSearch: (query: SearchQuery) => void;
+  onSearch: (query: SearchQuery, onSuccess: () => void) => void;
   isLoading: boolean;
 };
 
@@ -15,27 +15,26 @@ const searchSchema = z.object({
   sortBy: z.enum(["stars", "forks"]).optional(),
 });
 
-export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
-  const [form, setForm] = useState<SearchQuery>({
-    query: "",
-    languages: "",
-    minFollowers: undefined,
-    minStars: undefined,
-    sortBy: undefined,
-  });
+const initialFormState: SearchQuery = {
+  query: "",
+  languages: undefined,
+  minFollowers: undefined,
+  minStars: undefined,
+  sortBy: undefined,
+};
 
+export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
+  const [form, setForm] = useState<SearchQuery>(initialFormState);
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
-      [id]:
-        id === "minFollowers" || id === "minStars"
-          ? Number(value) || undefined
-          : value,
+      [id]: value,
     }));
   };
 
@@ -43,14 +42,21 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
     e.preventDefault();
     setError(null);
 
-    const result = searchSchema.safeParse(form);
+    const parsedForm: SearchQuery = {
+      ...form,
+      minStars: form.minStars ? Number(form.minStars) : undefined,
+      minFollowers: form.minFollowers ? Number(form.minFollowers) : undefined,
+    };
+
+    const result = searchSchema.safeParse(parsedForm);
 
     if (!result.success) {
       setError("Please fill in the required fields correctly.");
       return;
     }
 
-    onSearch(result.data);
+    const resetFormValues = () => setForm(initialFormState);
+    onSearch(result.data, resetFormValues);
   };
 
   return (
@@ -60,7 +66,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <div className="md:col-span-2">
             <label
               htmlFor="query"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Search Query<span className="text-red-500">*</span>
             </label>
@@ -78,7 +84,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <div>
             <label
               htmlFor="minStars"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Minimum Stars
             </label>
@@ -96,7 +102,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <div>
             <label
               htmlFor="minFollowers"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Minimum Followers
             </label>
@@ -114,7 +120,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <div>
             <label
               htmlFor="languages"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Languages
             </label>
@@ -131,7 +137,7 @@ export const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           <div className="">
             <label
               htmlFor="sortBy"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Sort By
             </label>
